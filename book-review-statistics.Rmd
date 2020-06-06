@@ -1,0 +1,14 @@
+---
+title: Book review statistics
+author: Samal Abdikerimova, Ravi Donepudi, Carlos Salinas, and Xiran Yu
+output:
+  html_document:
+theme: cosmo
+link-citations: yes
+---
+
+# Book review statistics
+
+```{r}
+
+```
