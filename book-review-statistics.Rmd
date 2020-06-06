@@ -12,3 +12,14 @@ link-citations: yes
 ```{r}
 
 ```
+
+
+# Ideas
+
+1. Look at relationship between reviews and pages.
+2. Filter by language.
+3. Relationship between popularity and gender.
+4. Language and popularity.
+5. Genre popularity through the years.
+6. Publisher relationship with rating.
+7. Publisher and gender relationship.
