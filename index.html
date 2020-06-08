@@ -220,26 +220,22 @@ books</code></pre>
 ## 10     14 &quot;The… Dougla…   4.22 1400… 97814… eng     215          4930
 ## # … with 8,462 more rows, and 3 more variables: text_reviews_count &lt;dbl&gt;,
 ## #   publication_date &lt;chr&gt;, publisher &lt;chr&gt;</code></pre>
-<p>Let’s get more of an idea of what we are working with. Perhaps the easiest way to group books by is language.</p>
+<p>Let’s get more of an idea of what we are working with. Since we speak English we’d like to focus solely on English language books. But first let’s see how many of them we have</p>
 <pre class="r"><code>books %&gt;%
+    subset(is.na(as.numeric(lang))) %&gt;%
+    subset(!is.na(lang)) %&gt;%
     group_by(lang) %&gt;%
     tally() %&gt;%
-    arrange(desc(n))</code></pre>
-<pre><code>## # A tibble: 25 x 2
-##    lang      n
-##    &lt;chr&gt; &lt;int&gt;
-##  1 eng    6815
-##  2 en-US  1040
-##  3 en-GB   159
-##  4 spa     156
-##  5 fre     113
-##  6 ger      73
-##  7 jpn      46
-##  8 mul      19
-##  9 zho      13
-## 10 grc      11
-## # … with 15 more rows</code></pre>
-<p>OK, so it looks like US and Great Britain version of books fall under a different language tag (and if we search hard Canadian too). For our purposes <code>"en-CA", ``"en-GB"</code>, and <code>en-US</code> are the same so let us clean up the data a little</p>
+    arrange(desc(n)) %&gt;%
+    ggplot(aes(x = factor(lang, levels = lang), y = n, fill = lang)) +
+    geom_bar(stat = &quot;identity&quot;) +
+    labs(title = &quot;Title number of books by language&quot;,
+         x = &quot;language&quot;,
+         y = &quot;number of books&quot;) +
+    theme(axis.text.x = element_text(angle=90, hjust=1))</code></pre>
+<pre><code>## Warning in eval(e, x, parent.frame()): NAs introducidos por coerción</code></pre>
+<p><img src="index_files/figure-html/unnamed-chunk-1-1.png" width="672" /></p>
+<p>Nice, so the overwhelming majority of the data is in <code>eng</code>. However, it looks like US and Great Britain version of books fall under a different language tag (and if we search hard Canadian too). For our purposes <code>"en-CA", ``"en-GB"</code>, and <code>en-US</code> are the same so let us clean up the data a little</p>
 <pre class="r"><code>books$lang &lt;- books %&gt;%
     pull(lang) %&gt;%
     str_replace_all(&quot;en*(g|-GB|-US|-CA)&quot;, &quot;eng&quot;)</code></pre>
@@ -257,7 +253,68 @@ books</code></pre>
          x = &quot;average rating&quot;,
          y = &quot;number of books&quot;)</code></pre>
 <p><img src="index_files/figure-html/plot%20ratings-1.png" width="672" /></p>
-<p>OK, so it seems that most English language ratings are around 4.0, to be precise the mode is and the <code>r eng_books %&gt;%     group_by(rating) %&gt;%     summarize(count = n()) %&gt;%     arrange(desc(count)) %&gt;%     pull(rating) %&gt;%     first()</code> and the average 3.9549246</p>
+<p>OK, to make better sense of this data let’s take a look at how many people are reading these books</p>
+<p>and who are the most prolific writers</p>
+<pre class="r"><code>eng_books %&gt;%
+    group_by(authors) %&gt;%
+    summarize(count = n()) %&gt;%
+    arrange(desc(count)) %&gt;%
+    ungroup() %&gt;%
+    slice(1:10)</code></pre>
+<pre><code>## # A tibble: 10 x 2
+##    authors                     count
+##    &lt;chr&gt;                       &lt;int&gt;
+##  1 Stephen King                   31
+##  2 Sandra Brown                   27
+##  3 Dick Francis                   26
+##  4 James Patterson                22
+##  5 Margaret Weis/Tracy Hickman    21
+##  6 Orson Scott Card               20
+##  7 Terry Pratchett                20
+##  8 Gordon Korman                  19
+##  9 Piers Anthony                  18
+## 10 Alan Dean Foster               17</code></pre>
+<p>Stephen King—that was sort of expected—and who are the top rated authors</p>
+<pre class="r"><code>eng_books %&gt;%
+    group_by(authors) %&gt;%
+    summarize(average_rating = sum(rating)/n()) %&gt;%
+    arrange(desc(average_rating)) %&gt;%
+    ungroup() %&gt;%
+    slice(1:10)</code></pre>
+<pre><code>## # A tibble: 10 x 2
+##    authors                                              average_rating
+##    &lt;chr&gt;                                                         &lt;dbl&gt;
+##  1 Chris    Green/Chris Wright/Paul Douglas Gardner                  5
+##  2 James E. Campbell                                                 5
+##  3 Julie Sylvester/David Sylvester                                   5
+##  4 Keith Donohue                                                     5
+##  5 Laura Driscoll/Alisa Klayman-Grodsky/Eric     Weiner              5
+##  6 Middlesex Borough Heritage Committee                              5
+##  7 Ross Garnaut                                                      5
+##  8 Sheri Rose Shepherd                                               5
+##  9 Todd Davis/Marc Frey                                              5
+## 10 William C. Dowling                                                5</code></pre>
+<p>who are these people? So highly rated authors are not necessarily notable ones, perhaps there is a better way to measure top authors.</p>
+<pre class="r"><code>eng_books %&gt;%
+    (function(...) {
+        tmp &lt;- tibble(...)
+        tmp$authors &lt;- tmp$authors %&gt;%
+            str_replace_all(&quot;Margaret Weis/Tracy Hickman&quot;,
+                            &quot;Weis/Hickman&quot;)
+        tmp}) %&gt;%
+    group_by(authors) %&gt;%
+    summarize(book_count = n(),
+              sum_rating = sum(rating)) %&gt;%
+    arrange(desc(sum_rating)) %&gt;%
+    slice(1:10) %&gt;%
+    ggplot(aes(factor(authors, levels = authors), sum_rating, fill = authors)) +
+    geom_col() +
+    coord_flip() +
+    labs(title = &quot;Author rankings&quot;,
+         y = &quot;author&quot;,
+         x = &quot;sum rating&quot;) +
+    scale_fill_brewer(palette=&quot;Spectral&quot;)</code></pre>
+<p><img src="index_files/figure-html/good%20books-1.png" width="672" /></p>
 </div>
 </div>
 

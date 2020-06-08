@@ -41,15 +41,24 @@ books <- read_csv("data/books.csv") %>%
 books
 ```
 
-Let's get more of an idea of what we are working with. Perhaps the easiest way to group books by is language.
+Let's get more of an idea of what we are working with. Since we speak English we'd like to focus solely on English language books. But first let's see how many of them we have
 
 ```{r }
 books %>%
+    subset(is.na(as.numeric(lang))) %>%
+    subset(!is.na(lang)) %>%
     group_by(lang) %>%
     tally() %>%
-    arrange(desc(n))
+    arrange(desc(n)) %>%
+    ggplot(aes(x = factor(lang, levels = lang), y = n, fill = lang)) +
+    geom_bar(stat = "identity") +
+    labs(title = "Title number of books by language",
+         x = "language",
+         y = "number of books") +
+    theme(axis.text.x = element_text(angle=90, hjust=1))
 ```
-OK, so it looks like US and Great Britain version of books fall under a different language tag (and if we search hard Canadian too). For our purposes `"en-CA", ``"en-GB"`, and `en-US` are the same so let us clean up the data a little 
+
+Nice, so the overwhelming majority of the data is in `eng`. However, it looks like US and Great Britain version of books fall under a different language tag (and if we search hard Canadian too). For our purposes `"en-CA", `"en-GB"`, and `en-US` are the same so let us clean up the data a little 
 
 ```{r eng_replace, message = FALSE, warning = FALSE, eval = FALSE}
 books$lang <- books %>%
@@ -80,8 +89,9 @@ eng_books %>%
 
 OK, to make better sense of this data let's take a look at how many people are reading these books
 
-<!-- ```{r } -->
-<!-- ``` -->
+```{r }
+
+```
 
 and who are the most prolific writers
 
