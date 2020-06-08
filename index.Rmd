@@ -208,10 +208,6 @@ stephen_king %>% summarize(mean = mean(pages))
 eng_books$publisher <- factor(eng_books$publisher)
 ```
 
-```{r, message = FALSE, warning = FALSE}
-eng_books %>% pull(publisher) %>% levels()
-```
-
 ```{r, message = FALSE, warning = FALSE }
 top_10_publishers <- eng_books %>%
     group_by(publisher) %>%
