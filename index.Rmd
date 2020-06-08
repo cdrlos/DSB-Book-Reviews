@@ -78,18 +78,53 @@ eng_books %>%
          y = "number of books")
 ```
 
-OK, so it seems that most English language ratings are around 4.0, to be precise the mode is and the 
-`r
+OK, to make better sense of this data let's take a look at how many people are reading these books
+
+<!-- ```{r } -->
+<!-- ``` -->
+
+and who are the most prolific writers
+
+```{r prolific writers, message = FALSE, warning = FALSE}
 eng_books %>%
-    group_by(rating) %>%
+    group_by(authors) %>%
     summarize(count = n()) %>%
     arrange(desc(count)) %>%
-    pull(rating) %>%
-    first()
-`
-and the average 
-`r 
+    ungroup() %>%
+    slice(1:10)
+```
+
+Stephen King—that was sort of expected—and who are the top rated authors
+
+```{r naive top authors, message = FALSE, warning = FALSE}
 eng_books %>%
-    summarize(mean = mean(rating)) %>%
-    first()
-`
+    group_by(authors) %>%
+    summarize(average_rating = sum(rating)/n()) %>%
+    arrange(desc(average_rating)) %>%
+    ungroup() %>%
+    slice(1:10)
+```
+
+who are these people? So highly rated authors are not necessarily notable ones, perhaps there is a better way to measure top authors.
+
+```{r good books, message = FALSE, warning = FALSE}
+eng_books %>%
+    (function(...) {
+        tmp <- tibble(...)
+        tmp$authors <- tmp$authors %>%
+            str_replace_all("Margaret Weis/Tracy Hickman",
+                            "Weis/Hickman")
+        tmp}) %>%
+    group_by(authors) %>%
+    summarize(book_count = n(),
+              sum_rating = sum(rating)) %>%
+    arrange(desc(sum_rating)) %>%
+    slice(1:10) %>%
+    ggplot(aes(factor(authors, levels = authors), sum_rating, fill = authors)) +
+    geom_col() +
+    coord_flip() +
+    labs(title = "Author rankings",
+         y = "author",
+         x = "sum rating") +
+    scale_fill_brewer(palette="Spectral")
+```
