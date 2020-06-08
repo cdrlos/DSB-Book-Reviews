@@ -1,0 +1,80 @@
+---
+title: Book review statistics
+author: Samal Abdikerimova, Ravi Donepudi, Carlos Salinas, and Xiran Yu
+output:
+  html_document
+---
+
+# Book review statistics
+
+```{r setup, include = FALSE}
+library("tidyr")
+library("tidyverse")
+library("rgoodreads")
+```
+
+[rgoodreads]: https://github.com/Famguy/rgoodreads
+[goodreads-kaggle]: https://www.kaggle.com/jealousleopard/goodreadsbooks/
+## Ideas
+
+1. Look at relationship between reviews and pages.
+2. Filter by language.
+3. Relationship between popularity and gender.
+4. Language and popularity.
+5. Genre popularity through the years.
+6. Publisher relationship with rating.
+7. Publisher and gender relationship.
+
+
+Note that there is an Goodreads API and that somebody has written an R interface
+to it, however we do not have enough time to explore it and get it to do as we
+want. What we will do instead is use the data set found on Kaggle [here][goodreads-kaggle]together with the Goodreads API to answer some of the questions above.
+
+First we import the data and take a good look.
+
+```{r import-books_csv, message = FALSE, warning = FALSE}
+books <- read_csv("data/books.csv") %>%
+    rename(rating = average_rating,
+           total_ratings = ratings_count,
+           lang = language_code,
+           pages = num_pages)
+books
+```
+
+Let's get more of an idea of what we are working with. Perhaps the easiest way to group books by is language.
+
+```{r }
+books %>%
+    group_by(lang) %>%
+    tally() %>%
+    arrange(desc(n))
+```
+OK, so it looks like US and Great Britain version of books fall under a different language tag (and if we search hard Canadian too). For our purposes `"en-CA", ``"en-GB"`, and `en-US` are the same so let us clean up the data a little 
+
+```{r eng_replace, message = FALSE, warning = FALSE, eval = FALSE}
+books$lang <- books %>%
+    pull(lang) %>%
+    str_replace_all("en*(g|-GB|-US|-CA)", "eng")
+```
+
+Another way to deal with this problem is simply to ignore these variants by filtering them out of the data set. Now, since the overwhelming majority of the books in this data set are in English, we will focus our attention on `"eng"`.
+
+```{r english books, message = FALSE, warning = FALSE}
+eng_books <- books %>% filter(lang == "eng") %>% filter(rating >= 3)
+```
+
+One thing we might one to look at first is the distribution of ratings for English books. We do this as follows 
+
+```{r plot ratings, message = FALSE, warning = FALSE}
+eng_books %>%
+    group_by(rating) %>%
+    summarize(total_books = n()) %>%
+    ungroup() %>%
+    ggplot(aes(x = rating)) +
+    geom_bar(aes(y = total_books/1.000001, fill = rating),
+             stat = "identity") +
+    labs(title = "Total number of books per rating",
+         x = "average rating",
+         y = "number of books")
+```
+
