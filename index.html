@@ -310,7 +310,11 @@ prolific_writers &lt;- eng_books %&gt;% filter(authors %in% prolific_writer_name
     summarize(avg_rat = sum(rating)/n()) %&gt;%
     ungroup() %&gt;%
     ggplot(aes(x = authors, y = avg_rat, fill = authors)) +
-    geom_bar(stat = &quot;identity&quot;)</code></pre>
+    geom_bar(stat = &quot;identity&quot;) +
+    labs(title = &quot;Top 10 average author rating&quot;,
+          x = &quot;auhor&quot;,
+          y = &quot;average rating&quot;) +
+    theme(axis.text.x = element_text(angle = 90))</code></pre>
 <p><img src="index_files/figure-html/average%20rating-1.png" width="672" /></p>
 <pre class="r"><code>eng_books &lt;- eng_books %&gt;%
     mutate(publication_year = as.numeric(str_sub(publication_date, -4)))</code></pre>

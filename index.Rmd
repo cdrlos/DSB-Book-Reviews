@@ -146,7 +146,11 @@ prolific_writers %>%
     summarize(avg_rat = sum(rating)/n()) %>%
     ungroup() %>%
     ggplot(aes(x = authors, y = avg_rat, fill = authors)) +
-    geom_bar(stat = "identity")
+    geom_bar(stat = "identity") +
+    labs(title = "Top 10 average author rating",
+          x = "auhor",
+          y = "average rating") +
+    theme(axis.text.x = element_text(angle = 90))
 ```
 
 ```{r, message = FALSE, warning = FALSE}
