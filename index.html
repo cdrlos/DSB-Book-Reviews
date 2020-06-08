@@ -227,6 +227,7 @@ books</code></pre>
     group_by(lang) %&gt;%
     tally() %&gt;%
     arrange(desc(n)) %&gt;%
+    slice(1:10) %&gt;%
     ggplot(aes(x = factor(lang, levels = lang), y = n, fill = lang)) +
     geom_bar(stat = &quot;identity&quot;) +
     labs(title = &quot;Title number of books by language&quot;,
