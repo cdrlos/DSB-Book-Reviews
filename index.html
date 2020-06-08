@@ -235,7 +235,7 @@ books</code></pre>
     theme(axis.text.x = element_text(angle=90, hjust=1))</code></pre>
 <pre><code>## Warning in eval(e, x, parent.frame()): NAs introducidos por coerción</code></pre>
 <p><img src="index_files/figure-html/unnamed-chunk-1-1.png" width="672" /></p>
-<p>Nice, so the overwhelming majority of the data is in <code>eng</code>. However, it looks like US and Great Britain version of books fall under a different language tag (and if we search hard Canadian too). For our purposes <code>"en-CA", ``"en-GB"</code>, and <code>en-US</code> are the same so let us clean up the data a little</p>
+<p>Nice, so the overwhelming majority of the data is in <code>eng</code>. However, it looks like US and Great Britain version of books fall under a different language tag (and if we search hard Canadian too). For our purposes <code>"en-CA",</code>“en-GB”<code>, and</code>en-US` are the same so let us clean up the data a little</p>
 <pre class="r"><code>books$lang &lt;- books %&gt;%
     pull(lang) %&gt;%
     str_replace_all(&quot;en*(g|-GB|-US|-CA)&quot;, &quot;eng&quot;)</code></pre>

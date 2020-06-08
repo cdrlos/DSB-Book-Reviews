@@ -50,6 +50,7 @@ books %>%
     group_by(lang) %>%
     tally() %>%
     arrange(desc(n)) %>%
+    slice(1:10) %>%
     ggplot(aes(x = factor(lang, levels = lang), y = n, fill = lang)) +
     geom_bar(stat = "identity") +
     labs(title = "Title number of books by language",
