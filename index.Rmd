@@ -77,3 +77,19 @@ eng_books %>%
          x = "average rating",
          y = "number of books")
 ```
+
+OK, so it seems that most English language ratings are around 4.0, to be precise the mode is and the 
+`r
+eng_books %>%
+    group_by(rating) %>%
+    summarize(count = n()) %>%
+    arrange(desc(count)) %>%
+    pull(rating) %>%
+    first()
+`
+and the average 
+`r 
+eng_books %>%
+    summarize(mean = mean(rating)) %>%
+    first()
+`
