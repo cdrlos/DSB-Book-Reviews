@@ -27,7 +27,6 @@ library("forcats")
 6. Publisher relationship with rating.
 7. Publisher and gender relationship.
 
-
 Note that there is an Goodreads API and that somebody has written an R interface
 to it, however we do not have enough time to explore it and get it to do as we
 want. What we will do instead is use the data set found on Kaggle [here][goodreads-kaggle]together with the Goodreads API to answer some of the questions above.
@@ -45,7 +44,7 @@ books
 
 Let's get more of an idea of what we are working with. Since we speak English we'd like to focus solely on English language books. But first let's see how many of them we have
 
-```{r }
+```{r, message = FALSE, warning = FALSE}
 books %>%
     subset(is.na(as.numeric(lang))) %>%
     subset(!is.na(lang)) %>%
@@ -91,10 +90,6 @@ eng_books %>%
 ```
 
 OK, to make better sense of this data let's take a look at how many people are reading these books
-
-```{r }
-
-```
 
 and who are the most prolific writers
 
@@ -145,7 +140,7 @@ eng_books %>%
     scale_fill_brewer(palette="Spectral")
 ```
 
-```{r average rating}
+```{r average rating, message = FALSE, rating = FALSE}
 prolific_writers %>%
     group_by(authors) %>%
     summarize(avg_rat = sum(rating)/n()) %>%
@@ -154,7 +149,7 @@ prolific_writers %>%
     geom_bar(stat = "identity")
 ```
 
-```{r }
+```{r, message = FALSE, warning = FALSE}
 eng_books <- eng_books %>%
     mutate(publication_year = as.numeric(str_sub(publication_date, -4)))
 ```
@@ -170,14 +165,14 @@ eng_books %>% group_by(publication_year) %>%
          y = "books published")
 ```
 
-```{r }
+```{r, message = FALSE, rating = FALSE}
 books_per_year <- eng_books %>% group_by(publication_year) %>%
     summarize(total_books = n()) %>%
     arrange(desc(total_books)) %>%
     ungroup()
 ```
 
-```{r }
+```{r, warning = FALSE, rating = FALSE}
 model_publish_books <- books_per_year %>%
     filter(publication_year <= 2006) %>%
     lm(log(total_books) ~ publication_year, .)
@@ -194,7 +189,7 @@ estimate_2020 <-
             newdata = data.frame(publication_year = seq(2015,2020)))
 ```
 
-```{r }
+```{r, message = FALSE, rating = FALSE}
 stephen_king <- books %>% filter(authors == "Stephen King" &
                                  title != "Blood and Smoke" &
                                  title != "LT's Theory of Pets")
@@ -205,26 +200,19 @@ predict(sk_model,
         newdata = data.frame(pages = c(300)))
 ```
 
-```{r }
+```{r, message = FALSE, rating = FALSE}
 stephen_king %>% summarize(mean = mean(pages))
 ```
 
-```{r }
-books %>%
-    group_by(publisher) %>%
-    summarize(total_published = n()) %>%
-```
-
-```{r }
+```{r, message = FALSE, warning = FALSE}
 eng_books$publisher <- factor(eng_books$publisher)
 ```
 
-
-```{r }
+```{r, message = FALSE, warning = FALSE}
 eng_books %>% pull(publisher) %>% levels()
 ```
 
-```{r }
+```{r, message = FALSE, warning = FALSE }
 top_10_publishers <- eng_books %>%
     group_by(publisher) %>%
     summarize(total_books = n()) %>%
@@ -233,12 +221,7 @@ top_10_publishers <- eng_books %>%
     pull(publisher)
 ```
 
-```{r }
+```{r, message = FALSE, warning = FALSE}
 eng_books_tp <- eng_books %>%
     filter(publisher %in% top_10_publishers)
-```
-
-```{r  }
-eng_books_tp %>%
-    boxplot(rating ~ fct_reorder(publisher, rating), data = .)
 ```
