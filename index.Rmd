@@ -77,4 +77,3 @@ eng_books %>%
          x = "average rating",
          y = "number of books")
 ```
-
