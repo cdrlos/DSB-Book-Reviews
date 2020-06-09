@@ -87,6 +87,9 @@ eng_books %>%
          y = "number of books")
 ```
 
+This actually very closely resembles a normal curve with mean `r mean(eng_books$rating)` and standard deviation `r sd(eng_books$rating)`.
+
+
 And what about publications per year?
 
 ```{r, message = FALSE, warning = FALSE}
@@ -213,6 +216,8 @@ predict(sk_model,
         newdata = data.frame(pages = c(300)))
 ```
 
+We are excluding the books Blood and Smoke and LT's Theory of Pets because they are audio books.
+
 ```{r, message = FALSE, rating = FALSE}
 stephen_king %>% summarize(mean = mean(pages))
 ```
@@ -244,11 +249,11 @@ Next let us see how the popularity of their publications have changed since 2000
 ```{r , message = FALSE, warning = FALSE}
 eng_books_tp %>%
     filter(publication_year >= 2000 &
-           publication_year < 2007) %>%
+           publication_year <= 2007) %>%
     ggplot(aes(x = fct_reorder(publisher, rating),
                y = rating, color = publisher)) +
     geom_boxplot() +
-    labs(title = "Publisher rating",
+    labs(title = "Publisher rating in {closest_state}",
          x = "publisher") +
     theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
     transition_states(publication_year,
