@@ -1,7 +1,7 @@
 ---
 title: "Predicting book success"
 author: "Samal Abdikerimova, Ravi Donepudi, Carlos Salinas, and Xiran Yu"
-date: today
+date: "`r Sys.Date()`"
 output:
   html_document:
     toc: yes
@@ -43,7 +43,7 @@ books$bookID <- NULL
 books$isbn <- NULL
 books$isbn13 <- NULL
 ```
-## Publication language
+# Publication language
 Since we speak English we'd like to focus solely on English language books. But first let's see how many of them we have
 
 ```{r, message = FALSE, warning = FALSE}
@@ -108,34 +108,29 @@ eng_books %>% group_by(publication_year) %>%
          y = "books published")
 ```
 
+The scatter plot shows an exponential trend until about 2007 for which we can use a linear model by taking the log of the number of publications.
 
 ```{r, message = FALSE, rating = FALSE}
 books_per_year <- eng_books %>% group_by(publication_year) %>%
     summarize(total_books = n()) %>%
     arrange(desc(total_books)) %>%
     ungroup()
-```
 
-
-```{r, warning = FALSE, rating = FALSE}
 model_publish_books <- books_per_year %>%
     filter(publication_year <= 2006) %>%
     lm(log(total_books) ~ publication_year, .)
 
-filtered_model <- books_per_year %>%
-    filter(publication_year > 2006) %>%
-    lm(log(total_books) ~ publication_year, .)
-
 model_publish_books %>% tidy()
-filtered_model %>% tidy()
 
 estimate_2020 <-
     predict(model_publish_books,
             newdata = data.frame(publication_year = seq(2015,2020)))
 ```
 
-## Prolific writers
-Who are the top rated authors? Naively we can look at the average rating of each author as follows. 
+However because the data does not include every book ever published, but rather is curated for most reviews, this model is not necessarily accurate. In fact, it is necessarily inaccurate since publications per year are actually increasing exponentially as can be seen in the following [analysis](https://ourworldindata.org/books).
+
+# Prolific writers
+Who are the top rated authors? Naively we can look at the average rating of each author as follows.
 
 ```{r naive top authors, message = FALSE, warning = FALSE}
 eng_books %>%
@@ -145,7 +140,8 @@ eng_books %>%
     ungroup() %>%
     slice(1:10)
 ```
-who are these people?
+
+Who are these people, I've never heard of them?
 
 So highly rated authors are not necessarily notable ones, perhaps the sum total of the ratings is a better indicator of *good author*.
 
@@ -222,7 +218,6 @@ We are excluding the books Blood and Smoke and LT's Theory of Pets because they 
 stephen_king %>% summarize(mean = mean(pages))
 ```
 
-
 # Publishers
 Next we will at the top 10 publishers by rating. We will first need to turn the publisher name into a factor to more easily work with it.
 
@@ -244,7 +239,7 @@ eng_books_tp <- eng_books %>%
     filter(publisher %in% top_10_publishers)
 ```
 
-Next let us see how the popularity of their publications have changed since 2000. 
+Next let us see how the popularity of their publications have changed since 2000.
 
 ```{r , message = FALSE, warning = FALSE}
 eng_books_tp %>%
@@ -264,4 +259,4 @@ eng_books_tp %>%
     ease_aes('sine-in-out')
 ```
 
-Two publishers stand out from among the rest, VIZ Media LLC and Harper Collins. VIZ media publishes graphic novels and comic books which have a higher average rating than books. 
+As we can see, the medium rating stays almost the same, fluctuating around 4.0 aver the years.
